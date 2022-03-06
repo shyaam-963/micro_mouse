@@ -1,0 +1,44 @@
+<launch>
+
+    <include file="$(find gazebo_ros)/launch/empty_world.launch">
+    <arg name="world_name" value="$(find micro_mouse)/world/my_arena.world"/>
+        <arg name="paused" value="false"/>
+        <arg name="use_sim_time" value="true"/>
+        <arg name="gui" value="true"/>
+        <arg name="headless" value="false"/> <!-- Inert - see gazebo_ros_pkgs issue #491 -->
+        <arg name="recording" value="false"/>
+        <arg name="debug" value="false"/>
+    </include>
+
+  <arg name="model" default="$(find micro_mouse)/urdf/micromouse_robot.urdf"/>
+  
+  <param 
+    name="robot_description" 
+    command="$(find xacro)/scripts/xacro $(arg model)" />
+
+    <rosparam file="$(find micro_mouse)/config/pos_control.yaml" command="load"/>
+
+    <node name="controller_spawner" pkg ="controller_manager" type="spawner" ns="/my_mm_robot" args="base_to_second_joint_position_controller 		
+                                                                                                     base_to_first_joint_position_controller  
+	                                                                                                 joint_state_controller"/>
+
+  <node name="urdf_spawner" pkg="gazebo_ros" type="spawn_model"
+        args="-x -1.35 -y 1.28 -z 0.03 -unpause -urdf -model my_mm_robot -param robot_description" respawn="false" output="screen" />
+
+  <!-- convert joint states to TF transforms for rviz, etc -->
+  <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher"
+    respawn="false" output="screen">
+    <remap from="/joint_states" to="/my_mm_robot/joint_states" />
+  </node>
+  
+  <node name = "micro_mouse_controller" pkg = "micro_mouse" type = "differential_drive.py" output = "screen" />
+  
+    <!-- camera-->
+  <node
+  name="spawn_model"
+  pkg="gazebo_ros"
+  type="spawn_model"
+  args="-x 0 -y 0 -z 2 -file $(find micro_mouse)/urdf/camera.urdf -urdf -model camera"
+  output="screen" />
+
+</launch>
