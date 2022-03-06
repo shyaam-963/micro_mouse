@@ -137,14 +137,14 @@ class micro_mouse:
 
 if __name__ == '__main__':
     try:
-        points = np.load('/home/charan/catkin_ws/src/micro_mouse/scripts/shortest_path.npy')
+        points = np.load('/home/rmi/catkin_ws/src/micro_mouse/scripts/shortest_path.npy')
         mm = micro_mouse()
-        print("goal_class")
+        
         rospy.sleep(1)
         for i in range(np.shape(points)[0]):
             mm.goal_x = points[i][0]
             mm.goal_y = points[i][1]
-            print("goal_points")
+            
             mm.dd_controller()
             
             print("Reached point  :",i+1)
